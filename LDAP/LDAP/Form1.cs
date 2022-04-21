@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.DirectoryServices;
 using System.DirectoryServices.Protocols;
 using System.Net;
@@ -6,9 +7,9 @@ using System.Windows.Forms;
 
 namespace LDAP
 {
-    public partial class Form1 : Form
+    public partial class LDAP : Form
     {
-        public Form1()
+        public LDAP()
         {
             InitializeComponent();
         }
@@ -110,16 +111,33 @@ namespace LDAP
                 AuthenticationType = AuthenticationTypes.None //Or whatever it need be
             };
             DirectorySearcher searcher = new DirectorySearcher(rootEntry);
-            var queryFormat = "(sn=*)";
-            searcher.Filter = string.Format(queryFormat, searchString);
+            var queryFormat = "(ou=*)";
+            searcher.Filter = string.Format("(o=Bund)", searchString);
             SearchResultCollection resultCollection = searcher.FindAll();
             Console.WriteLine("LdapConnection found all.");
+            DataTable dt = new DataTable();
+            Datentabelle.DataSource = dt;
+            dt.Columns.Add("O");
+            DataGrid dbtable = new DataGrid();
+            DataRow dr;
+
+            //var zahl = resultCollection.Count;
+            //Console.WriteLine("Gesamt " + zahl + "Objekte");
             foreach (SearchResult result in resultCollection)
             {
                 //Console.WriteLine(result.ToString(result.Properties["sn"]));
-                Console.WriteLine("common name: {0}", result.Properties["cn"].Count > 0 ? result.Properties["cn"][0] : string.Empty);
+                
+                foreach(SearchResult Key in result.Properties["ou"])
+                {
+                    dt.Rows.Add(Key.Properties);
+                }
+                
+               
+
+                Console.WriteLine("common name: {0}", result.Properties["ou"].Count > 0 ? result.Properties["ou"][0] : string.Empty);
             }
-        }
+            
+                }
 
         private void textBox5_TextChanged(object sender, EventArgs e)
         {
@@ -127,6 +145,11 @@ namespace LDAP
         }
 
         private void output_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
