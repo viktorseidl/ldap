@@ -103,41 +103,47 @@ namespace LDAP
         }
 
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            string searchString=searchfield.Text;
-            DirectoryEntry rootEntry = new DirectoryEntry("LDAP://x500.bund.de")
+        
+            private void button2_Click(object sender, EventArgs e)
             {
-                AuthenticationType = AuthenticationTypes.None //Or whatever it need be
-            };
-            DirectorySearcher searcher = new DirectorySearcher(rootEntry);
-            var queryFormat = "(ou=*)";
-            searcher.Filter = string.Format("(o=Bund)", searchString);
-            SearchResultCollection resultCollection = searcher.FindAll();
-            Console.WriteLine("LdapConnection found all.");
-            DataTable dt = new DataTable();
-            Datentabelle.DataSource = dt;
-            dt.Columns.Add("O");
-            DataGrid dbtable = new DataGrid();
-            DataRow dr;
-
-            //var zahl = resultCollection.Count;
-            //Console.WriteLine("Gesamt " + zahl + "Objekte");
-            foreach (SearchResult result in resultCollection)
-            {
-                //Console.WriteLine(result.ToString(result.Properties["sn"]));
-                
-                foreach(SearchResult Key in result.Properties["ou"])
+                string searchString = searchfield.Text;
+                DirectoryEntry rootEntry = new DirectoryEntry("LDAP://x500.bund.de")
                 {
-                    dt.Rows.Add(Key.Properties);
-                }
-                
-               
+                    AuthenticationType = AuthenticationTypes.None //Or whatever it need be
+                };
+                string[] args = { "o", "ou", "cn" };
+                foreach (string arg in args)
+                {
+                    DirectorySearcher searcher = new DirectorySearcher(rootEntry);
+                    var queryFormat = "(" + arg + "=*)";
+                    searcher.Filter = string.Format(queryFormat, searchString);
+                    SearchResultCollection resultCollection = searcher.FindAll();
+                    Console.WriteLine("LdapConnection found all.");
+                    string tab = "   ";
+                    foreach (SearchResult result in resultCollection)
+                    {
+                        Console.WriteLine("common name: {0}", result.Properties[arg].Count > 0 ? result.Properties[arg][0] : string.Empty);
 
-                Console.WriteLine("common name: {0}", result.Properties["ou"].Count > 0 ? result.Properties["ou"][0] : string.Empty);
-            }
-            
+                        ResultPropertyCollection rpc = result.Properties;
+
+                        foreach (String property in rpc.PropertyNames)
+                        {
+
+                            Console.Write(property + "=");
+
+                            foreach (Object obj in rpc[property])
+                                Console.WriteLine(tab + obj);
+
+                            // Object in Liste speichern
+
+
+                        }
+
+                    }
                 }
+            }
+
+        
 
         private void textBox5_TextChanged(object sender, EventArgs e)
         {
