@@ -59,10 +59,10 @@ namespace LDAP
 
         private void button1_Click(object sender, EventArgs e)
         {
-            _server = server.Text;
-            int _port = Int32.Parse(port.Text);
-            _dn = DN.Text;
-            string _pass = pass.Text;
+            _server = "x500.bund.de"; //server.Text;
+            int _port = 389;//Int32.Parse(port.Text);
+            _dn = "RootDSE";//DN.Text;
+            string _pass = "";//pass.Text;
             if (_store == false)
             {
                 if (ConnectToLDAP(_server, _port, _dn, _pass) == true)
@@ -105,17 +105,18 @@ namespace LDAP
         private void button2_Click(object sender, EventArgs e)
         {
             string searchString=searchfield.Text;
-            DirectoryEntry rootEntry = new DirectoryEntry("LDAP://ldap.forumsys.com", "read-only-admin", "password")
+            DirectoryEntry rootEntry = new DirectoryEntry("LDAP://x500.bund.de")
             {
                 AuthenticationType = AuthenticationTypes.None //Or whatever it need be
             };
             DirectorySearcher searcher = new DirectorySearcher(rootEntry);
-            var queryFormat = "(&(objectClass=user)(|(cn=*{0}*)(sn=*{0}*)(email=*{0}*)))";
+            var queryFormat = "(sn=*)";
             searcher.Filter = string.Format(queryFormat, searchString);
             SearchResultCollection resultCollection = searcher.FindAll();
+            Console.WriteLine("LdapConnection found all.");
             foreach (SearchResult result in resultCollection)
             {
-                Console.WriteLine("account name: {0}", result.Properties["samaccountname"].Count > 0 ? result.Properties["samaccountname"][0] : string.Empty);
+                //Console.WriteLine(result.ToString(result.Properties["sn"]));
                 Console.WriteLine("common name: {0}", result.Properties["cn"].Count > 0 ? result.Properties["cn"][0] : string.Empty);
             }
         }
